@@ -74,7 +74,7 @@ const DashboardPage = () => {
 
         <Stack direction={{xs: 'column', md: 'row'}} spacing={1} alignItems="center" justifyContent="space-between" mb={4}>
           <Typography component="h1" variant="h3" sx={{ fontWeight: 'bold' }}>
-            Hello, {authUsername}
+            Hello {authUsername}
           </Typography>
           
           <AddNewDialog uid={authUser!.uid} categories={categories} />
