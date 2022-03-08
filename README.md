@@ -18,6 +18,16 @@ the edit and delete functionality with dialogs.
 The pie chart was created with ReCharts JS. I enjoyed using this package in another project so I wanted to continue to use it. Since the data is dynamic, I had to figure out a way to
 dynamically assign colors to each category. To solve this, I basically created a function that returns the hex value of specific interval points of a rainbow.
 
+## Screenshots
+
+![dashboard screenshot](/screenshots/dashboard.png)
+![calendar screenshot](/screenshots/calendar.png)
+![purchase table screenshot](/screenshots/purchases-1.png)
+![purchase chart screenshot](/screenshots/purchases-2.png)
+![login screenshot](/screenshots/login.png)
+![register screenshot](/screenshots/register.png)
+
+
 ## Tech Stack
 - Next.js
 - Firebase (Authentication and Firestore)
