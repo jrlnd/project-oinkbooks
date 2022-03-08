@@ -38,7 +38,7 @@ const NavBar = () => {
 
 
   return (
-    <AppBar position="fixed" elevation={2} sx={{height: {xs: '3.75rem', md: '4.5rem'}}}>
+    <AppBar position="sticky" elevation={2} sx={{height: {xs: '3.75rem', md: '4.5rem'}}}>
       <Container maxWidth="xl" sx={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)' }}>
         <Toolbar disableGutters>
           <Typography

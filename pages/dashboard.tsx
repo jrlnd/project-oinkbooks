@@ -85,7 +85,7 @@ const DashboardPage = () => {
         </Typography> 
         <Calendar calDate={calDate} setCalDate={setCalDate} dateFrom={dateFrom} dateTo={dateTo} weeklyView={true} content={content}/>
 
-        <Box pb={4} sx={{ width: '100%', display: 'grid', gridTemplateColumns: {xs: '1fr', md: '1fr 1fr'}, gridTemplateRows: {xs: 'auto auto', md: '1fr'}, columnGap: {xs: 0, md: 4}, rowGap: {xs: 4, md: 0}}}>
+        <Box pb={2} sx={{ width: '100%', display: 'grid', gridTemplateColumns: {xs: '1fr', md: '1fr 1fr'}, gridTemplateRows: {xs: 'auto auto', md: '1fr'}, columnGap: {xs: 0, md: 4}, rowGap: {xs: 4, md: 0}}}>
           <TransactionsTable title="Recent Purchases" uid={authUser!.uid} categories={categories} purchases={purchases} />
           <TransactionsChart title="Total Purchases" data={purchases} categories={categories} />
         </Box>
