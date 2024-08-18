@@ -1,29 +1,45 @@
-# Create T3 App
+# Oinkbooks
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+[View website](https://jrlnd-projects-oinkbooks.vercel.app/)
 
-## What's next? How do I make an app with this?
+Oinkbooks is a simple purchase tracker for visualising and tracking personal expenses to meet financial goals. All you need to do is add your purchase and it will update automatically on the calendar, table and graph.
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+## Overview
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+I was inspired to create this web app when I was helping my friend create something similar on a spreadsheet. I've seen lots of different budget/expense trackers before, but
+not many of them let you visualise those purchases on a calendar to see a day-by-day analysis.
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+Creating the calendar was an interesting challenge. I didn't want to rely on any external libraries so I created it from scratch using CSS Grid. For responsive design, the calendar
+changes to an agenda-esque view and only shows days that have actual purchases and hides all the empty days.
 
-## Learn More
+The table was created with Material UI's data grid. The pro version of the data grid allows for external button actions, so I added my own custom functionality in order to provide
+the edit and delete functionality with dialogs.
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+The pie chart was created with ReCharts JS. I enjoyed using this package in another project so I wanted to continue to use it. Since the data is dynamic, I had to figure out a way to
+dynamically assign colors to each category. To solve this, I basically created a function that returns the hex value of specific interval points of a rainbow.
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+## Tech Stack
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+- Next.js 14
+- Vercel Postgres DB
+- Clerk Authentication
+- Sentry Error Management
+- Posthog Analytics
+- Upstash Redis Ratelimiting
 
-## How do I deploy this?
+## To-Do List
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+- [x] Make it deploy (vercel)
+- [ ] Tidy up build process
+- [ ] Scaffold basic ui with mock data
+- [ ] Actually setup a database (vercel postgres)
+- [ ] Attach database to UI
+- [ ] Add authentication (clerk)
+- [ ] Add app functionality + server actions
+- [ ] Error management (sentry)
+- [ ] Analytics (posthog)
+- [ ] Ratelimiting (upstash)
+
+## Improvements
+
+TBD
