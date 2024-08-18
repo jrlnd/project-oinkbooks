@@ -1,40 +1,29 @@
-# Oinkbooks
+# Create T3 App
 
-[View website](https://jrlnd-projects-oinkbooks.vercel.app/)
+This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
 
-Oinkbooks is a simple purchase tracker for visualising and tracking personal expenses to meet financial goals. All you need to do is add your purchase and it will update automatically on the calendar, table and graph.
+## What's next? How do I make an app with this?
 
-# Overview
+We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
 
-I was inspired to create this web app when I was helping my friend create something similar on a spreadsheet. I've seen lots of different budget/expense trackers before, but
-not many of them let you visualise those purchases on a calendar to see a day-by-day analysis. 
+If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
 
-Creating the calendar was an interesting challenge. I didn't want to rely on any external libraries so I created it from scratch using CSS Grid. For responsive design, the calendar
-changes to an agenda-esque view and only shows days that have actual purchases and hides all the empty days. 
+- [Next.js](https://nextjs.org)
+- [NextAuth.js](https://next-auth.js.org)
+- [Prisma](https://prisma.io)
+- [Drizzle](https://orm.drizzle.team)
+- [Tailwind CSS](https://tailwindcss.com)
+- [tRPC](https://trpc.io)
 
-The table was created with Material UI's data grid. The pro version of the data grid allows for external button actions, so I added my own custom functionality in order to provide
-the edit and delete functionality with dialogs.
+## Learn More
 
-The pie chart was created with ReCharts JS. I enjoyed using this package in another project so I wanted to continue to use it. Since the data is dynamic, I had to figure out a way to
-dynamically assign colors to each category. To solve this, I basically created a function that returns the hex value of specific interval points of a rainbow.
+To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
 
-# Tech Stack
-- Next.js
-- Firebase (Authentication and Firestore)
-- Material UI
-- Recharts
-## Screenshots
+- [Documentation](https://create.t3.gg/)
+- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
 
-![dashboard screenshot](/screenshots/dashboard.png)
-![calendar screenshot](/screenshots/calendar.png)
-![purchase table screenshot](/screenshots/purchases-1.png)
-![purchase chart screenshot](/screenshots/purchases-2.png)
-![login screenshot](/screenshots/login.png)
-![register screenshot](/screenshots/register.png)
+You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
 
+## How do I deploy this?
 
-
-## Improvements
-- Categories are set and cannot be updated/deleted
-- Functionality to CRUD budget goals
-- I don't think Next.JS was necessary for this project, however it works.
+Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
