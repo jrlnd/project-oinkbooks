@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:18-alpine
+    container_name: oinkbooks-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: oinkbooks
+      POSTGRES_PASSWORD: oinkbooks
+      POSTGRES_DB: oinkbooks
+    ports:
+      - '5432:5432'
+    volumes:
+      - oinkbooks-pgdata:/var/lib/postgresql/data
+
+volumes:
+  oinkbooks-pgdata:

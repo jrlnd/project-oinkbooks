@@ -1,45 +1,56 @@
-# Oinkbooks
+# OinkBooks v2
 
-[View website](https://jrlnd-projects-oinkbooks.vercel.app/)
+A personal purchase tracker — visualise and track expenses on a calendar, table, and chart.
 
-Oinkbooks is a simple purchase tracker for visualising and tracking personal expenses to meet financial goals. All you need to do is add your purchase and it will update automatically on the calendar, table and graph.
+**v2** is a ground-up rebuild of the [v1 app](https://github.com/) (Next.js + React + Firebase + Material UI)
+onto an Angular stack, ported incrementally one feature slice at a time.
 
-## Overview
+## Stack
 
-I was inspired to create this web app when I was helping my friend create something similar on a spreadsheet. I've seen lots of different budget/expense trackers before, but
-not many of them let you visualise those purchases on a calendar to see a day-by-day analysis.
+| Layer | v1 (React) | v2 (Angular) |
+| --- | --- | --- |
+| Frontend | Next.js 12 + React 17 | **Angular 21** + Angular Material |
+| Reactivity | hooks (`useState`/`useEffect`) | **RxJS** data layer + signals for UI state |
+| Backend | Firebase (BaaS) | **NestJS** REST API |
+| Database | Firestore | **Postgres** + Drizzle ORM |
+| Auth | Firebase Auth | **JWT + bcrypt** (owned) |
+| Charts | Recharts | ngx-charts |
+| Forms | react-hook-form | Angular Reactive Forms |
 
-Creating the calendar was an interesting challenge. I didn't want to rely on any external libraries so I created it from scratch using CSS Grid. For responsive design, the calendar
-changes to an agenda-esque view and only shows days that have actual purchases and hides all the empty days.
+## Repository layout (pnpm workspace monorepo)
 
-The table was created with Material UI's data grid. The pro version of the data grid allows for external button actions, so I added my own custom functionality in order to provide
-the edit and delete functionality with dialogs.
+```
+oinkbooks/
+├─ apps/web/          Angular frontend (Angular Material, RxJS)
+├─ apps/api/          NestJS API (Drizzle + Postgres, JWT auth)
+├─ packages/types/    Shared domain types (used by web AND api)
+├─ docker-compose.yml local Postgres
+└─ pnpm-workspace.yaml
+```
 
-The pie chart was created with ReCharts JS. I enjoyed using this package in another project so I wanted to continue to use it. Since the data is dynamic, I had to figure out a way to
-dynamically assign colors to each category. To solve this, I basically created a function that returns the hex value of specific interval points of a rainbow.
+`packages/types` is the single source of truth for `PurchaseDetails`, `CategoryDetails`,
+and the request/response DTOs — imported by both the frontend and the backend so the
+contract can never drift.
 
-## Tech Stack
+## Getting started
 
-- Next.js 14
-- Vercel Postgres DB
-- Clerk Authentication
-- Sentry Error Management
-- Posthog Analytics
-- Upstash Redis Ratelimiting
+```bash
+pnpm install            # install all workspace deps
+cp .env.example .env     # configure DB + JWT secret
+pnpm db:up               # start Postgres (Docker)
+pnpm db:migrate          # apply Drizzle migrations   (added in the schema slice)
+pnpm dev                 # run web (:4200) + api (:3000) together
+```
 
-## To-Do List
+Or run individually: `pnpm dev:web` / `pnpm dev:api`.
 
-- [x] Make it deploy (vercel)
-- [ ] Tidy up build process
-- [ ] Scaffold basic ui with mock data
-- [ ] Actually setup a database (vercel postgres)
-- [ ] Attach database to UI
-- [ ] Add authentication (clerk)
-- [ ] Add app functionality + server actions
-- [ ] Error management (sentry)
-- [ ] Analytics (posthog)
-- [ ] Ratelimiting (upstash)
+## React → Angular notes
 
-## Improvements
+The port preserves v1's feature set while translating idioms:
 
-TBD
+- `useState` → signals · `useMemo` → `computed()` · `useEffect` → `effect()`
+- React Context (`UserContext`) → an injectable `root` service
+- `PrivateRoute` → a `CanActivate` route guard
+- Firestore `onSnapshot` listeners → RxJS streams (`switchMap` over the date range),
+  with refetch-on-mutation in place of live snapshots
+- MUI components → Angular Material; the hand-rolled CSS-Grid calendar ports nearly verbatim
