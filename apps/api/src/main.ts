@@ -19,7 +19,9 @@ async function bootstrap() {
     credentials: true,
   });
 
-  const port = config.get<number>('API_PORT') ?? 3000;
-  await app.listen(port);
+  // Render (and most PaaS) inject PORT; fall back to API_PORT then 3000 locally.
+  // Bind 0.0.0.0 so the platform's router can reach the container.
+  const port = config.get<number>('PORT') ?? config.get<number>('API_PORT') ?? 3000;
+  await app.listen(port, '0.0.0.0');
 }
 void bootstrap();

@@ -19,7 +19,13 @@ export type DrizzleDB = PostgresJsDatabase<typeof schema>;
       inject: [ConfigService],
       useFactory: (configService: ConfigService): DrizzleDB => {
         const url = configService.getOrThrow<string>('DATABASE_URL');
-        const client = postgres(url);
+        const client = postgres(url, {
+          // Neon's pooled endpoint (pgBouncer, transaction mode) does not
+          // support prepared statements; disabling keeps prod compatible.
+          // Harmless against local Postgres. SSL is driven by the URL
+          // (Neon strings include ?sslmode=require).
+          prepare: false,
+        });
         return drizzle(client, { schema });
       },
     },

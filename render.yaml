@@ -1,0 +1,28 @@
+# Render Blueprint for the NestJS API (free Web Service).
+# Postgres is hosted separately on Neon (free) — set DATABASE_URL below.
+services:
+  - type: web
+    name: oinkbooks-api
+    runtime: node
+    plan: free
+    region: oregon
+    # Build the workspace, then apply DB migrations against Neon. (Render's free
+    # tier has no preDeployCommand, so migrations run as the last build step.)
+    buildCommand: >-
+      pnpm install --frozen-lockfile &&
+      pnpm --filter @oinkbooks/api build &&
+      pnpm --filter @oinkbooks/api db:migrate
+    startCommand: node apps/api/dist/main.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      # Set these in the Render dashboard (sync:false = not stored in the blueprint):
+      - key: WEB_ORIGIN
+        sync: false # e.g. https://oinkbooks.vercel.app
+      - key: DATABASE_URL
+        sync: false # Neon pooled connection string incl. ?sslmode=require

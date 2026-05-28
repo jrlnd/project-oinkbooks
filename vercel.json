@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "//": "Set the Vercel project's Root Directory to the repo root so the pnpm workspace (incl. @oinkbooks/types) installs.",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm --filter @oinkbooks/web build",
+  "outputDirectory": "apps/web/dist/web/browser",
+  "framework": null,
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
