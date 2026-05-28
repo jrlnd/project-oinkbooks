@@ -1,5 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
+// .env.test loading happens inside e2e/globalSetup.ts so this config stays
+// CommonJS-friendly (Playwright loads .ts configs as CJS by default).
+
 /**
  * Playwright E2E config. Tests live in ./e2e and drive the running app via
  * a real browser. Both dev servers are auto-started if they aren't already
@@ -10,6 +13,7 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './e2e',
+  globalSetup: './e2e/globalSetup.ts',
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,

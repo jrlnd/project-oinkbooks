@@ -2,8 +2,16 @@ import { test, expect } from '@playwright/test';
 
 /**
  * E2E: authentication & guards.
- * Assumes a seed user alice@oink.dev / hunter2pw exists in the local database.
+ *
+ * Credentials come from .env.test (gitignored). The Playwright globalSetup
+ * registers this fixture user against the local API on first run, so the
+ * suite is hermetic — `git clone → pnpm db:up → pnpm test:e2e` works
+ * without any manual seeding step.
  */
+const EMAIL = process.env.TEST_USER_EMAIL ?? '';
+const PASSWORD = process.env.TEST_USER_PASSWORD ?? '';
+const USERNAME = process.env.TEST_USER_USERNAME ?? '';
+
 test.describe('auth flow', () => {
   test('unauthenticated / redirects to /login', async ({ page }) => {
     await page.goto('/');
@@ -19,24 +27,22 @@ test.describe('auth flow', () => {
     await expect(page.getByLabel('Username')).toBeVisible();
   });
 
-  test('login with alice routes to dashboard', async ({ page }) => {
+  test('login as the fixture user routes to dashboard', async ({ page }) => {
     await page.goto('/login');
-    await page.fill('input[formcontrolname="email"]', 'alice@oink.dev');
-    await page.fill('input[formcontrolname="password"]', 'hunter2pw');
+    await page.fill('input[formcontrolname="email"]', EMAIL);
+    await page.fill('input[formcontrolname="password"]', PASSWORD);
     await page.getByRole('button', { name: 'Login' }).click();
     await expect(page).toHaveURL(/\/dashboard$/);
-    await expect(page.locator('h1')).toContainText('Hello alice');
+    await expect(page.locator('h1')).toContainText(`Hello ${USERNAME}`);
   });
 
   test('guestGuard redirects authed user away from /login', async ({ page }) => {
-    // log in first
     await page.goto('/login');
-    await page.fill('input[formcontrolname="email"]', 'alice@oink.dev');
-    await page.fill('input[formcontrolname="password"]', 'hunter2pw');
+    await page.fill('input[formcontrolname="email"]', EMAIL);
+    await page.fill('input[formcontrolname="password"]', PASSWORD);
     await page.getByRole('button', { name: 'Login' }).click();
     await expect(page).toHaveURL(/\/dashboard$/);
 
-    // visiting /login while authed should bounce to /dashboard
     await page.goto('/login');
     await expect(page).toHaveURL(/\/dashboard$/);
   });

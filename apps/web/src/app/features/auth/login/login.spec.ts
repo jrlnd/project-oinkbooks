@@ -48,14 +48,14 @@ describe('Login component', () => {
 
   it('email validator rejects malformed input', () => {
     cmp.form.controls['email'].setValue('not-an-email');
-    cmp.form.controls['password'].setValue('hunter2pw');
+    cmp.form.controls['password'].setValue('fixture');
     expect(cmp.form.controls['email'].hasError('email')).toBe(true);
     expect(cmp.form.valid).toBe(false);
   });
 
   it('form becomes valid when both fields look correct', () => {
-    cmp.form.controls['email'].setValue('alice@oink.dev');
-    cmp.form.controls['password'].setValue('hunter2pw');
+    cmp.form.controls['email'].setValue('fixture@oinkbooks.test');
+    cmp.form.controls['password'].setValue('fixture');
     expect(cmp.form.valid).toBe(true);
   });
 

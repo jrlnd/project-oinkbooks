@@ -81,16 +81,16 @@ describe('AuthService', () => {
       const { svc, jwt, insertedUsers, insertedCats } = makeService({});
 
       const res = await svc.register({
-        email: 'bob@oink.dev',
+        email: 'newuser@oinkbooks.test',
         username: 'bobby',
-        password: 'hunter2pw',
+        password: 'fixture',
       });
 
       // user row was inserted with a HASHED password, not the plaintext
       const inserted = insertedUsers[0] as { passwordHash: string };
-      expect(inserted.passwordHash).not.toBe('hunter2pw');
+      expect(inserted.passwordHash).not.toBe('fixture');
       expect(inserted.passwordHash.startsWith('$2')).toBe(true);
-      expect(await bcrypt.compare('hunter2pw', inserted.passwordHash)).toBe(true);
+      expect(await bcrypt.compare('fixture', inserted.passwordHash)).toBe(true);
 
       // 7 default categories were seeded for the new user
       expect(insertedCats.length).toBe(7);
@@ -98,16 +98,16 @@ describe('AuthService', () => {
       // a JWT was signed and returned
       expect(jwt.sign).toHaveBeenCalled();
       expect(res.token).toBe('signed.jwt.token');
-      expect(res.user.email).toBe('bob@oink.dev');
+      expect(res.user.email).toBe('newuser@oinkbooks.test');
     });
 
     it('rejects a duplicate email/username with 409', async () => {
       const { svc } = makeService({ selectExisting: [{ id: 'existing-user' }] });
       await expect(
         svc.register({
-          email: 'taken@oink.dev',
+          email: 'taken@oinkbooks.test',
           username: 'taken',
-          password: 'hunter2pw',
+          password: 'fixture',
         }),
       ).rejects.toBeInstanceOf(ConflictException);
     });
@@ -115,12 +115,12 @@ describe('AuthService', () => {
 
   describe('login', () => {
     it('returns a token on a correct password', async () => {
-      const hash = await bcrypt.hash('hunter2pw', 4);
+      const hash = await bcrypt.hash('fixture', 4);
       const { svc, jwt } = makeService({
         selectByEmail: [
           {
             id: 'u1',
-            email: 'alice@oink.dev',
+            email: 'fixture@oinkbooks.test',
             username: 'alice',
             passwordHash: hash,
             createdAt: new Date('2026-05-28T00:00:00Z'),
@@ -129,8 +129,8 @@ describe('AuthService', () => {
       });
 
       const res = await svc.login({
-        email: 'alice@oink.dev',
-        password: 'hunter2pw',
+        email: 'fixture@oinkbooks.test',
+        password: 'fixture',
       });
       expect(res.token).toBe('signed.jwt.token');
       expect(res.user.username).toBe('alice');
@@ -140,7 +140,7 @@ describe('AuthService', () => {
     it('rejects an unknown email with 401', async () => {
       const { svc } = makeService({ selectByEmail: [] });
       await expect(
-        svc.login({ email: 'ghost@oink.dev', password: 'x' }),
+        svc.login({ email: 'ghost@oinkbooks.test', password: 'x' }),
       ).rejects.toBeInstanceOf(UnauthorizedException);
     });
 
@@ -150,7 +150,7 @@ describe('AuthService', () => {
         selectByEmail: [
           {
             id: 'u1',
-            email: 'alice@oink.dev',
+            email: 'fixture@oinkbooks.test',
             username: 'alice',
             passwordHash: hash,
             createdAt: new Date(),
@@ -158,7 +158,7 @@ describe('AuthService', () => {
         ],
       });
       await expect(
-        svc.login({ email: 'alice@oink.dev', password: 'wrong' }),
+        svc.login({ email: 'fixture@oinkbooks.test', password: 'wrong' }),
       ).rejects.toBeInstanceOf(UnauthorizedException);
     });
   });

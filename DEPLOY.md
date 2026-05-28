@@ -54,7 +54,7 @@ API=https://oinkbooks-api.onrender.com   # your Render URL
 # (free tier: first call may take ~30–60s while the service wakes)
 curl -s $API/health
 curl -s -X POST $API/auth/register -H 'Content-Type: application/json' \
-  -d '{"email":"you@example.com","username":"you","password":"hunter2pw"}'
+  -d '{"email":"you@example.com","username":"you","password":"your-password-here"}'
 ```
 
 Then open the Vercel URL, register/login, and confirm the dashboard loads.
