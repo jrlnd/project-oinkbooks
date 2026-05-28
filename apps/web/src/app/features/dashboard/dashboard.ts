@@ -1,5 +1,8 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import type { CategoryDetails } from '@oinkbooks/types';
 
 import { AuthService } from '../../core/auth/auth.service';
@@ -10,13 +13,22 @@ import {
 } from '../../core/data/purchases.service';
 import { Calendar, type DayContent } from '../calendar/calendar';
 import { CategoryChart } from '../category-chart/category-chart';
+import {
+  PurchaseDialog,
+  type PurchaseDialogData,
+} from '../purchase-dialog/purchase-dialog';
 import { PurchasesTable } from '../purchases-table/purchases-table';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [Calendar, CategoryChart, PurchasesTable],
+  imports: [Calendar, CategoryChart, PurchasesTable, MatButtonModule, MatIconModule],
   template: `
-    <h1 class="page-title">Hello {{ auth.currentUser()?.username }}</h1>
+    <div class="page-header">
+      <h1 class="page-title">Hello {{ auth.currentUser()?.username }}</h1>
+      <button mat-flat-button color="primary" (click)="openAddDialog()">
+        <mat-icon>add</mat-icon> Add New Purchase
+      </button>
+    </div>
 
     <h2 class="section-title">Weekly Overview</h2>
     <app-calendar
@@ -46,9 +58,17 @@ import { PurchasesTable } from '../purchases-table/purchases-table';
   `,
   styles: [
     `
+      .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin: 0 0 1.5rem;
+        flex-wrap: wrap;
+      }
       .page-title {
         font-weight: 700;
-        margin: 0 0 1.5rem;
+        margin: 0;
       }
       .section-title {
         font-weight: 700;
@@ -70,6 +90,15 @@ export class Dashboard {
   protected readonly auth = inject(AuthService);
   private readonly purchasesSvc = inject(PurchasesService);
   private readonly categoriesSvc = inject(CategoriesService);
+  private readonly dialog = inject(MatDialog);
+
+  openAddDialog(): void {
+    this.dialog.open<PurchaseDialog, PurchaseDialogData, boolean>(PurchaseDialog, {
+      data: { categories: this.categories() },
+      width: '480px',
+      maxWidth: '95vw',
+    });
+  }
 
   readonly calDate = signal(new Date());
 

@@ -1,6 +1,8 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import type { CategoryDetails } from '@oinkbooks/types';
 
 import { CategoriesService } from '../../core/data/categories.service';
@@ -10,6 +12,10 @@ import {
 } from '../../core/data/purchases.service';
 import { Calendar, type DayContent } from '../calendar/calendar';
 import { CategoryChart } from '../category-chart/category-chart';
+import {
+  PurchaseDialog,
+  type PurchaseDialogData,
+} from '../purchase-dialog/purchase-dialog';
 import { PurchasesTable } from '../purchases-table/purchases-table';
 
 /**
@@ -21,9 +27,14 @@ import { PurchasesTable } from '../purchases-table/purchases-table';
  */
 @Component({
   selector: 'app-purchases',
-  imports: [Calendar, CategoryChart, PurchasesTable],
+  imports: [Calendar, CategoryChart, PurchasesTable, MatButtonModule, MatIconModule],
   template: `
-    <h1 class="page-title">Monthly Purchases</h1>
+    <div class="page-header">
+      <h1 class="page-title">Monthly Purchases</h1>
+      <button mat-flat-button color="primary" (click)="openAddDialog()">
+        <mat-icon>add</mat-icon> Add New Purchase
+      </button>
+    </div>
 
     <app-calendar
       [calDate]="calDate()"
@@ -49,9 +60,17 @@ import { PurchasesTable } from '../purchases-table/purchases-table';
   `,
   styles: [
     `
+      .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin: 0 0 1.5rem;
+        flex-wrap: wrap;
+      }
       .page-title {
         font-weight: 700;
-        margin: 0 0 1.5rem;
+        margin: 0;
       }
       .chart-block {
         margin-top: 1.5rem;
@@ -62,7 +81,7 @@ import { PurchasesTable } from '../purchases-table/purchases-table';
 export class Purchases {
   private readonly purchasesSvc = inject(PurchasesService);
   private readonly categoriesSvc = inject(CategoriesService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
 
   readonly calDate = signal(new Date());
 
@@ -118,12 +137,19 @@ export class Purchases {
     });
   }
 
+  openAddDialog(): void {
+    this.dialog.open<PurchaseDialog, PurchaseDialogData, boolean>(PurchaseDialog, {
+      data: { categories: this.categories() },
+      width: '480px',
+      maxWidth: '95vw',
+    });
+  }
+
   protected onEditRequested(row: HydratedPurchase): void {
-    // The real edit dialog ships in slice 9. For now, just acknowledge.
-    this.snackBar.open(
-      `Edit dialog for "${row.title}" arrives in slice 9.`,
-      'Dismiss',
-      { duration: 3000 },
-    );
+    this.dialog.open<PurchaseDialog, PurchaseDialogData, boolean>(PurchaseDialog, {
+      data: { categories: this.categories(), purchase: row },
+      width: '480px',
+      maxWidth: '95vw',
+    });
   }
 }
