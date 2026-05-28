@@ -25,3 +25,7 @@ pnpm-debug.log*
 
 # testing
 coverage/
+
+# Playwright
+apps/web/test-results/
+apps/web/playwright-report/
