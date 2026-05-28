@@ -37,3 +37,64 @@ body {
   height: 100%;
 }
 /* You can add global styles to this file, and also import other style files */
+
+/* OinkBooks brand colours (from v1): primary blue -> secondary green */
+:root {
+  --oink-blue: #4ca2cd;
+  --oink-green: #67b26f;
+}
+
+/* Shared layout for the login / register pages (ports v1's centered Paper on
+   the gradient index background). */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: linear-gradient(0deg, var(--oink-blue), var(--oink-green));
+  background-attachment: fixed;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem 1.5rem 1.5rem;
+  box-sizing: border-box;
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .full {
+    width: 100%;
+  }
+}
+
+.auth-logo {
+  display: block;
+  width: 96px;
+  margin: 0 auto 1.5rem;
+}
+
+.auth-title {
+  text-align: center;
+  font-weight: 700;
+  margin: 0 0 1.5rem;
+}
+
+.auth-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.auth-actions button,
+.auth-actions a {
+  flex: 1;
+}
+
