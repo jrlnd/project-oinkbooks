@@ -1,0 +1,23 @@
+<div class="chart-wrap">
+  @if (title()) {
+    <h2 class="chart-title">{{ title() }}</h2>
+  }
+
+  <div class="chart-surface">
+    @if (isEmpty()) {
+      <p class="chart-empty">No purchases in this period.</p>
+    } @else {
+      <ngx-charts-pie-chart
+        [results]="data()"
+        [scheme]="colorScheme()"
+        [labels]="true"
+        [doughnut]="false"
+        [legend]="true"
+        [legendPosition]="legend()"
+        legendTitle=""
+        [trimLabels]="false"
+        class="oink-chart"
+      ></ngx-charts-pie-chart>
+    }
+  </div>
+</div>

@@ -9,11 +9,12 @@ import {
   type HydratedPurchase,
 } from '../../core/data/purchases.service';
 import { Calendar, type DayContent } from '../calendar/calendar';
+import { CategoryChart } from '../category-chart/category-chart';
 import { PurchasesTable } from '../purchases-table/purchases-table';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [Calendar, PurchasesTable],
+  imports: [Calendar, CategoryChart, PurchasesTable],
   template: `
     <h1 class="page-title">Hello {{ auth.currentUser()?.username }}</h1>
 
@@ -25,12 +26,23 @@ import { PurchasesTable } from '../purchases-table/purchases-table';
       (calDateChange)="calDate.set($event)"
     />
 
-    <h2 class="section-title">Recent Purchases</h2>
-    <app-purchases-table
-      [purchases]="purchases()"
-      [categories]="categories()"
-      [pageSize]="5"
-    />
+    <div class="grid-2">
+      <section>
+        <h2 class="section-title">Recent Purchases</h2>
+        <app-purchases-table
+          [purchases]="purchases()"
+          [categories]="categories()"
+          [pageSize]="5"
+        />
+      </section>
+      <section>
+        <app-category-chart
+          [purchases]="purchases()"
+          [categories]="categories()"
+          title="Total Purchases"
+        />
+      </section>
+    </div>
   `,
   styles: [
     `
@@ -42,6 +54,14 @@ import { PurchasesTable } from '../purchases-table/purchases-table';
         font-weight: 700;
         font-size: 1.25rem;
         margin: 1rem 0 0.75rem;
+      }
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        @media (min-width: 960px) {
+          grid-template-columns: 1fr 1fr;
+        }
       }
     `,
   ],

@@ -9,6 +9,7 @@ import {
   type HydratedPurchase,
 } from '../../core/data/purchases.service';
 import { Calendar, type DayContent } from '../calendar/calendar';
+import { CategoryChart } from '../category-chart/category-chart';
 import { PurchasesTable } from '../purchases-table/purchases-table';
 
 /**
@@ -20,7 +21,7 @@ import { PurchasesTable } from '../purchases-table/purchases-table';
  */
 @Component({
   selector: 'app-purchases',
-  imports: [Calendar, PurchasesTable],
+  imports: [Calendar, CategoryChart, PurchasesTable],
   template: `
     <h1 class="page-title">Monthly Purchases</h1>
 
@@ -37,12 +38,23 @@ import { PurchasesTable } from '../purchases-table/purchases-table';
       [pageSize]="25"
       (editRequested)="onEditRequested($event)"
     />
+
+    <div class="chart-block">
+      <app-category-chart
+        [purchases]="purchases()"
+        [categories]="categories()"
+        legendPosition="right"
+      />
+    </div>
   `,
   styles: [
     `
       .page-title {
         font-weight: 700;
         margin: 0 0 1.5rem;
+      }
+      .chart-block {
+        margin-top: 1.5rem;
       }
     `,
   ],
