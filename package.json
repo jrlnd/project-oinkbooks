@@ -12,7 +12,11 @@
     "db:down": "docker compose down",
     "db:generate": "pnpm --filter @oinkbooks/api db:generate",
     "db:migrate": "pnpm --filter @oinkbooks/api db:migrate",
-    "db:studio": "pnpm --filter @oinkbooks/api db:studio"
+    "db:studio": "pnpm --filter @oinkbooks/api db:studio",
+    "test": "pnpm --filter @oinkbooks/api test && pnpm --filter @oinkbooks/web test",
+    "test:api": "pnpm --filter @oinkbooks/api test",
+    "test:web": "pnpm --filter @oinkbooks/web test",
+    "test:e2e": "pnpm --filter @oinkbooks/web e2e"
   },
   "packageManager": "pnpm@10.34.1",
   "engines": {

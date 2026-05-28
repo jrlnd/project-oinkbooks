@@ -1,6 +1,7 @@
 import {
   ApplicationConfig,
   provideBrowserGlobalErrorListeners,
+  provideZonelessChangeDetection,
 } from '@angular/core';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -12,6 +13,9 @@ import { authInterceptor } from './core/auth/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    // Zoneless: signals + async-pipe + manual ChangeDetectorRef drive the UI.
+    // Drops the zone.js polyfill at runtime; matches modern Angular best practice.
+    provideZonelessChangeDetection(),
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
