@@ -1,0 +1,64 @@
+<mat-toolbar color="primary" class="nav-bar">
+  <!-- Mobile: hamburger menu -->
+  <button
+    class="nav-mobile-toggle"
+    mat-icon-button
+    [matMenuTriggerFor]="mobileMenu"
+    aria-label="Open navigation"
+  >
+    <mat-icon>menu</mat-icon>
+  </button>
+  <mat-menu #mobileMenu="matMenu">
+    @for (p of pages; track p.url) {
+      <a mat-menu-item [routerLink]="p.url" routerLinkActive="active">
+        <mat-icon>{{ p.icon }}</mat-icon>
+        <span>{{ p.label }}</span>
+      </a>
+    }
+  </mat-menu>
+
+  <!-- Brand -->
+  <a class="nav-brand" routerLink="/dashboard" aria-label="OinkBooks home">
+    <img src="logo.svg" alt="" class="nav-logo" />
+    <span class="nav-brand-text">OinkBooks</span>
+  </a>
+
+  <!-- Desktop: inline nav links -->
+  <nav class="nav-links">
+    @for (p of pages; track p.url) {
+      <a
+        mat-button
+        [routerLink]="p.url"
+        routerLinkActive="active"
+        class="nav-link"
+      >
+        <mat-icon>{{ p.icon }}</mat-icon>
+        <span>{{ p.label }}</span>
+      </a>
+    }
+  </nav>
+
+  <span class="nav-spacer"></span>
+
+  <!-- User menu -->
+  <button
+    mat-button
+    [matMenuTriggerFor]="userMenu"
+    class="nav-user"
+    aria-label="Account menu"
+  >
+    <mat-icon>account_circle</mat-icon>
+    <span class="nav-user-name">{{ auth.currentUser()?.username }}</span>
+    <mat-icon>arrow_drop_down</mat-icon>
+  </button>
+  <mat-menu #userMenu="matMenu" xPosition="before">
+    <div class="nav-user-info" mat-menu-item disabled>
+      <mat-icon>person</mat-icon>
+      <span>{{ auth.currentUser()?.email }}</span>
+    </div>
+    <button mat-menu-item (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      <span>Log out</span>
+    </button>
+  </mat-menu>
+</mat-toolbar>

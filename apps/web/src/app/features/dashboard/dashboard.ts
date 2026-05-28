@@ -1,20 +1,37 @@
 import { Component, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 
 import { AuthService } from '../../core/auth/auth.service';
 
-// Placeholder protected page — proves the auth guard + session. The real
-// dashboard (calendar, table, chart) is built in later slices.
+/**
+ * Dashboard page — renders inside the Shell's <router-outlet>. The real
+ * weekly calendar + table + chart land in slices 5–8; this is the stub
+ * after slice 4 so the shell + routing are wired against a real page.
+ */
 @Component({
   selector: 'app-dashboard',
-  imports: [MatButtonModule],
+  imports: [MatCardModule],
   template: `
-    <main style="max-width: 720px; margin: 4rem auto; padding: 0 1rem;">
-      <h1>🐷 Hello {{ auth.currentUser()?.username }}</h1>
-      <p>You're authenticated. Email: {{ auth.currentUser()?.email }}</p>
-      <button mat-flat-button color="primary" (click)="auth.logout()">Log out</button>
-    </main>
+    <h1 class="page-title">Hello {{ auth.currentUser()?.username }}</h1>
+
+    <mat-card appearance="outlined" class="page-card">
+      <p>
+        Welcome to OinkBooks. The dashboard's weekly calendar, recent
+        purchases table and category chart land in the next slices.
+      </p>
+    </mat-card>
   `,
+  styles: [
+    `
+      .page-title {
+        font-weight: 700;
+        margin: 0 0 1rem;
+      }
+      .page-card {
+        padding: 1rem 1.25rem;
+      }
+    `,
+  ],
 })
 export class Dashboard {
   protected readonly auth = inject(AuthService);
