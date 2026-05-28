@@ -4,7 +4,9 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { CategoriesModule } from './categories/categories.module';
 import { DbModule } from './db/db.module';
+import { PurchasesModule } from './purchases/purchases.module';
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import { DbModule } from './db/db.module';
     }),
     DbModule,
     AuthModule,
+    CategoriesModule,
+    PurchasesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
