@@ -1,38 +1,121 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
+import type { CategoryDetails } from '@oinkbooks/types';
 
 import { AuthService } from '../../core/auth/auth.service';
+import { CategoriesService } from '../../core/data/categories.service';
+import {
+  PurchasesService,
+  type HydratedPurchase,
+} from '../../core/data/purchases.service';
+import { Calendar, type DayContent } from '../calendar/calendar';
 
 /**
- * Dashboard page — renders inside the Shell's <router-outlet>. The real
- * weekly calendar + table + chart land in slices 5–8; this is the stub
- * after slice 4 so the shell + routing are wired against a real page.
+ * Dashboard — weekly calendar view of the authed user's purchases.
+ *
+ * Demonstrates the slice 5 + slice 6 pieces working together:
+ *  - calDate is a signal (the v2 mirror of v1's useState).
+ *  - dateFrom/dateTo are computed() — they recompute whenever calDate changes.
+ *  - effect() pushes the range into PurchasesService, which fires the
+ *    switchMap and re-runs GET /purchases.
+ *  - toSignal() lifts purchases$ and categories$ into signals so a single
+ *    computed() can derive the calendar's DayContent[].
+ *  - <app-calendar> receives content via input(), emits navigation via
+ *    output() — strict unidirectional flow.
  */
 @Component({
   selector: 'app-dashboard',
-  imports: [MatCardModule],
+  imports: [MatCardModule, Calendar],
   template: `
-    <h1 class="page-title">Hello {{ auth.currentUser()?.username }}</h1>
+    <h1 class="page-title">
+      Hello {{ auth.currentUser()?.username }}
+    </h1>
 
-    <mat-card appearance="outlined" class="page-card">
-      <p>
-        Welcome to OinkBooks. The dashboard's weekly calendar, recent
-        purchases table and category chart land in the next slices.
-      </p>
-    </mat-card>
+    <h2 class="section-title">Weekly Overview</h2>
+
+    <app-calendar
+      [calDate]="calDate()"
+      [content]="content()"
+      [weeklyView]="true"
+      (calDateChange)="calDate.set($event)"
+    />
   `,
   styles: [
     `
       .page-title {
         font-weight: 700;
-        margin: 0 0 1rem;
+        margin: 0 0 1.5rem;
       }
-      .page-card {
-        padding: 1rem 1.25rem;
+      .section-title {
+        font-weight: 700;
+        font-size: 1.25rem;
+        margin: 0 0 0.75rem;
       }
     `,
   ],
 })
 export class Dashboard {
   protected readonly auth = inject(AuthService);
+  private readonly purchasesSvc = inject(PurchasesService);
+  private readonly categoriesSvc = inject(CategoriesService);
+
+  /** Owned signal — the anchor date for the visible week. */
+  readonly calDate = signal(new Date());
+
+  /** Week starts Sunday (matches v1). */
+  protected readonly dateFrom = computed(() => {
+    const d = this.calDate();
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate() - d.getDay());
+  });
+
+  protected readonly dateTo = computed(() => {
+    const f = this.dateFrom();
+    return new Date(f.getFullYear(), f.getMonth(), f.getDate() + 6, 23, 59, 59, 999);
+  });
+
+  private readonly purchases = toSignal(this.purchasesSvc.purchases$, {
+    initialValue: [] as HydratedPurchase[],
+  });
+  private readonly categories = toSignal(this.categoriesSvc.categories$, {
+    initialValue: [] as CategoryDetails[],
+  });
+
+  /** Group purchases by day with a running cumulative total (v1 parity). */
+  protected readonly content = computed<DayContent[]>(() => {
+    const from = this.dateFrom();
+    const cats = this.categories();
+    const items = this.purchases();
+    const days: DayContent[] = [];
+    let running = 0;
+
+    for (let i = 0; i < 7; i++) {
+      const dayDate = new Date(from.getFullYear(), from.getMonth(), from.getDate() + i);
+      const dayItems = items
+        .filter(
+          (p) =>
+            p.date.getFullYear() === dayDate.getFullYear() &&
+            p.date.getMonth() === dayDate.getMonth() &&
+            p.date.getDate() === dayDate.getDate(),
+        )
+        .map((p) => ({
+          id: p.id,
+          title: p.title,
+          description: p.description,
+          amount: p.amount,
+          icon: this.categoriesSvc.iconFor(cats, p.categoryId),
+        }));
+      running += dayItems.reduce((s, x) => s + x.amount, 0);
+      days.push({ date: dayDate, items: dayItems, total: running });
+    }
+    return days;
+  });
+
+  constructor() {
+    // Push the date range into the shared service every time it changes —
+    // this triggers the combineLatest/switchMap in PurchasesService.
+    effect(() => {
+      this.purchasesSvc.setRange({ from: this.dateFrom(), to: this.dateTo() });
+    });
+  }
 }

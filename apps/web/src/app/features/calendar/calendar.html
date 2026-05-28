@@ -1,0 +1,100 @@
+<div class="cal-card">
+  <!-- Header: prev / title (or month-year button) / next -->
+  <div class="cal-header">
+    @if (canGoPrev()) {
+      <button mat-icon-button (click)="prev()" [attr.aria-label]="weeklyView() ? 'Previous week' : 'Previous month'">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+    } @else {
+      <span [matTooltip]="'Minimum date must be in the year 2022'">
+        <button mat-icon-button disabled><mat-icon>chevron_left</mat-icon></button>
+      </span>
+    }
+
+    @if (weeklyView()) {
+      <h2 class="cal-title">
+        {{ dateFrom() | date: (mdScreen() ? 'dd MMM yyyy' : 'MMM dd') }}
+        — {{ dateTo() | date: (mdScreen() ? 'dd MMM yyyy' : 'MMM dd') }}
+      </h2>
+    } @else {
+      <button mat-button class="cal-month-trigger" (click)="picker.open()">
+        {{ calDate() | date: 'MMMM yyyy' }}
+        <mat-icon class="cal-month-trigger-icon">today</mat-icon>
+      </button>
+      <!-- Hidden input for MatDatepicker. (monthSelected) gives v1's year+month picker behaviour. -->
+      <mat-form-field class="cal-picker-anchor">
+        <input matInput [matDatepicker]="picker" tabindex="-1" />
+      </mat-form-field>
+      <mat-datepicker
+        #picker
+        startView="multi-year"
+        (monthSelected)="onMonthSelected($event, picker)"
+      ></mat-datepicker>
+    }
+
+    @if (canGoNext()) {
+      <button mat-icon-button (click)="next()" [attr.aria-label]="weeklyView() ? 'Next week' : 'Next month'">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    } @else {
+      <span [matTooltip]="'Cannot view dates in the future'">
+        <button mat-icon-button disabled><mat-icon>chevron_right</mat-icon></button>
+      </span>
+    }
+  </div>
+
+  @if (isEmpty() && !mdScreen()) {
+    <p class="cal-empty">No purchases this {{ weeklyView() ? 'week' : 'month' }}.</p>
+  }
+
+  <!-- Grid: 7 cols on md+, 1 col stack on xs -->
+  <div class="cal-grid">
+    <!-- Weekday header row (md+ only) -->
+    @for (wd of weekDays(); track wd) {
+      <div class="cal-weekday">{{ wd }}</div>
+    }
+
+    <!-- Leading filler (month view, md+ only) -->
+    @if (!weeklyView() && mdScreen() && startDay() > 0) {
+      <div class="cal-filler" [style.grid-column]="'span ' + startDay()"></div>
+    }
+
+    <!-- Day cells -->
+    @for (day of content(); track day.date.getTime()) {
+      <div
+        class="cal-day"
+        [class.cal-day--hidden]="day.items.length === 0"
+      >
+        <div class="cal-day-head">
+          <span class="cal-day-num">
+            {{ mdScreen() ? day.date.getDate() : (day.date | date: 'EEE, MMM d') }}
+          </span>
+          @if (day.items.length > 0) {
+            <span class="cal-day-day-total">
+              {{ daySum(day.items) | currency: 'USD' }}
+            </span>
+          }
+        </div>
+        <div class="cal-day-body">
+          <ul class="cal-day-items">
+            @for (item of day.items; track item.id) {
+              <li
+                class="cal-day-item"
+                [matTooltip]="item.description ? item.title + ' — ' + item.description : item.title"
+                matTooltipShowDelay="300"
+              >
+                {{ item.icon }} {{ item.title }}
+              </li>
+            }
+          </ul>
+        </div>
+        <div class="cal-day-foot">{{ day.total | currency: 'USD' }}</div>
+      </div>
+    }
+
+    <!-- Trailing filler (month view, md+ only) -->
+    @if (!weeklyView() && mdScreen() && endDay() < 6) {
+      <div class="cal-filler" [style.grid-column]="'span ' + (6 - endDay())"></div>
+    }
+  </div>
+</div>
