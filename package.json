@@ -14,8 +14,19 @@
     "db:migrate": "pnpm --filter @oinkbooks/api db:migrate",
     "db:studio": "pnpm --filter @oinkbooks/api db:studio"
   },
-  "packageManager": "pnpm@9.15.5",
+  "packageManager": "pnpm@10.34.1",
   "engines": {
     "node": ">=20"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "@parcel/watcher",
+      "bcrypt",
+      "esbuild",
+      "lmdb",
+      "msgpackr-extract",
+      "unrs-resolver"
+    ]
   }
 }
