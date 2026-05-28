@@ -1,0 +1,87 @@
+<div class="table-wrap">
+  <table
+    mat-table
+    [dataSource]="dataSource"
+    matSort
+    matSortActive="date"
+    matSortDirection="desc"
+    class="purchases-table"
+  >
+    <!-- Date -->
+    <ng-container matColumnDef="date">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+      <td mat-cell *matCellDef="let row">{{ row.date | date: 'MMM d' }}</td>
+    </ng-container>
+
+    <!-- Purchase title -->
+    <ng-container matColumnDef="title">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Purchase</th>
+      <td mat-cell *matCellDef="let row">{{ row.title }}</td>
+    </ng-container>
+
+    <!-- Category (label resolved via categoriesSvc) -->
+    <ng-container matColumnDef="category">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Category</th>
+      <td mat-cell *matCellDef="let row">{{ categoryLabel(row.categoryId) }}</td>
+    </ng-container>
+
+    <!-- Description -->
+    <ng-container matColumnDef="description">
+      <th mat-header-cell *matHeaderCellDef>Description</th>
+      <td mat-cell *matCellDef="let row" class="cell-description">
+        {{ row.description }}
+      </td>
+    </ng-container>
+
+    <!-- Amount -->
+    <ng-container matColumnDef="amount">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="cell-num">
+        Amount
+      </th>
+      <td mat-cell *matCellDef="let row" class="cell-num">
+        {{ row.amount | currency: 'USD' }}
+      </td>
+    </ng-container>
+
+    <!-- Actions (only when enableEdit) -->
+    @if (enableEdit()) {
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="cell-actions">Actions</th>
+        <td mat-cell *matCellDef="let row" class="cell-actions">
+          <button
+            mat-icon-button
+            (click)="onEdit(row)"
+            matTooltip="Edit"
+            aria-label="Edit purchase"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            (click)="onDelete(row)"
+            matTooltip="Delete"
+            aria-label="Delete purchase"
+          >
+            <mat-icon>delete_forever</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+    }
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+
+    <!-- Empty-state row -->
+    <tr class="empty-row" *matNoDataRow>
+      <td [attr.colspan]="displayedColumns().length">
+        No purchases in this period.
+      </td>
+    </tr>
+  </table>
+
+  <mat-paginator
+    [pageSize]="pageSize()"
+    [pageSizeOptions]="[5, 10, 25, 50]"
+    showFirstLastButtons
+  ></mat-paginator>
+</div>

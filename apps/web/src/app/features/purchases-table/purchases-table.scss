@@ -1,0 +1,45 @@
+:host {
+  display: block;
+}
+
+.table-wrap {
+  background-color: var(--mat-sys-surface);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.purchases-table {
+  width: 100%;
+
+  .cell-num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cell-actions {
+    text-align: right;
+    width: 110px;
+  }
+
+  .cell-description {
+    color: rgba(0, 0, 0, 0.7);
+    font-size: 0.9rem;
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Numeric header alignment matches its body cell */
+  th.cell-num {
+    text-align: right;
+  }
+}
+
+.empty-row td {
+  text-align: center;
+  padding: 1.5rem;
+  color: rgba(0, 0, 0, 0.6);
+  font-style: italic;
+}

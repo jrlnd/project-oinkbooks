@@ -1,124 +1,117 @@
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
-import { combineLatest, map } from 'rxjs';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import type { CategoryDetails } from '@oinkbooks/types';
 
 import { CategoriesService } from '../../core/data/categories.service';
 import {
   PurchasesService,
   type HydratedPurchase,
 } from '../../core/data/purchases.service';
+import { Calendar, type DayContent } from '../calendar/calendar';
+import { PurchasesTable } from '../purchases-table/purchases-table';
 
 /**
- * Slice 5 wiring proof — sets a 30-day range on the PurchasesService, joins
- * its stream with the categories stream, and renders a simple list with
- * resolved icons. Slice 7 replaces this with the MatTable + edit/delete.
+ * Monthly Purchases page — v2 port of v1's pages/purchases.tsx.
+ *
+ * Reuses the same Calendar component as the dashboard (weeklyView=false ⇒
+ * full-month grid), and the new PurchasesTable in editable mode so rows
+ * can be deleted (edit dialog ships in slice 9).
  */
 @Component({
   selector: 'app-purchases',
-  imports: [CommonModule, MatCardModule, CurrencyPipe, DatePipe],
+  imports: [Calendar, PurchasesTable],
   template: `
     <h1 class="page-title">Monthly Purchases</h1>
 
-    @if (view$ | async; as view) {
-      <mat-card appearance="outlined" class="page-card">
-        <p class="meta">
-          {{ view.purchases.length }} purchase{{ view.purchases.length === 1 ? '' : 's' }} in the
-          last 30 days
-        </p>
+    <app-calendar
+      [calDate]="calDate()"
+      [content]="content()"
+      (calDateChange)="calDate.set($event)"
+    />
 
-        @if (view.purchases.length === 0) {
-          <p>No purchases yet. The add-new dialog lands in slice 9.</p>
-        } @else {
-          <ul class="rows">
-            @for (p of view.purchases; track p.id) {
-              <li class="row">
-                <span class="icon">{{ view.iconFor(p.categoryId) }}</span>
-                <span class="title">{{ p.title }}</span>
-                <span class="date">{{ p.date | date: 'MMM d' }}</span>
-                <span class="amount">{{ p.amount | currency: 'USD' }}</span>
-              </li>
-            }
-          </ul>
-        }
-      </mat-card>
-    } @else {
-      <mat-card appearance="outlined" class="page-card">Loading…</mat-card>
-    }
+    <app-purchases-table
+      [purchases]="purchases()"
+      [categories]="categories()"
+      [enableEdit]="true"
+      [pageSize]="25"
+      (editRequested)="onEditRequested($event)"
+    />
   `,
   styles: [
     `
       .page-title {
         font-weight: 700;
-        margin: 0 0 1rem;
-      }
-      .page-card {
-        padding: 1rem 1.25rem;
-      }
-      .meta {
-        margin: 0 0 0.75rem;
-        opacity: 0.7;
-      }
-      .rows {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-      .row {
-        display: grid;
-        grid-template-columns: 2rem 1fr auto auto;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.5rem 0;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-      }
-      .row:last-child {
-        border-bottom: 0;
-      }
-      .icon {
-        font-size: 1.25rem;
-      }
-      .title {
-        font-weight: 500;
-      }
-      .date {
-        opacity: 0.7;
-        font-size: 0.9rem;
-      }
-      .amount {
-        font-variant-numeric: tabular-nums;
-        font-weight: 600;
+        margin: 0 0 1.5rem;
       }
     `,
   ],
 })
-export class Purchases implements OnInit {
+export class Purchases {
   private readonly purchasesSvc = inject(PurchasesService);
   private readonly categoriesSvc = inject(CategoriesService);
+  private readonly snackBar = inject(MatSnackBar);
 
-  /**
-   * Join purchases$ and categories$ into a single view model. combineLatest
-   * waits for both, then re-emits whenever either side updates (a new
-   * category list or a refreshed purchases list both re-render).
-   */
-  protected readonly view$ = combineLatest([
-    this.purchasesSvc.purchases$,
-    this.categoriesSvc.categories$,
-  ]).pipe(
-    map(([purchases, categories]) => ({
-      purchases: purchases as HydratedPurchase[],
-      iconFor: (id: string) => this.categoriesSvc.iconFor(categories, id),
-    })),
+  readonly calDate = signal(new Date());
+
+  protected readonly dateFrom = computed(
+    () => new Date(this.calDate().getFullYear(), this.calDate().getMonth(), 1),
   );
 
-  ngOnInit(): void {
-    // 30-day window ending today.
-    const to = new Date();
-    const from = new Date(to);
-    from.setDate(to.getDate() - 30);
-    this.purchasesSvc.setRange({ from, to });
+  protected readonly dateTo = computed(() => {
+    const f = this.dateFrom();
+    return new Date(f.getFullYear(), f.getMonth() + 1, 0, 23, 59, 59, 999);
+  });
+
+  protected readonly purchases = toSignal(this.purchasesSvc.purchases$, {
+    initialValue: [] as HydratedPurchase[],
+  });
+  protected readonly categories = toSignal(this.categoriesSvc.categories$, {
+    initialValue: [] as CategoryDetails[],
+  });
+
+  protected readonly content = computed<DayContent[]>(() => {
+    const from = this.dateFrom();
+    const cats = this.categories();
+    const items = this.purchases();
+    const numDays = new Date(from.getFullYear(), from.getMonth() + 1, 0).getDate();
+    const days: DayContent[] = [];
+    let running = 0;
+
+    for (let i = 0; i < numDays; i++) {
+      const dayDate = new Date(from.getFullYear(), from.getMonth(), i + 1);
+      const dayItems = items
+        .filter(
+          (p) =>
+            p.date.getFullYear() === dayDate.getFullYear() &&
+            p.date.getMonth() === dayDate.getMonth() &&
+            p.date.getDate() === dayDate.getDate(),
+        )
+        .map((p) => ({
+          id: p.id,
+          title: p.title,
+          description: p.description,
+          amount: p.amount,
+          icon: this.categoriesSvc.iconFor(cats, p.categoryId),
+        }));
+      running += dayItems.reduce((s, x) => s + x.amount, 0);
+      days.push({ date: dayDate, items: dayItems, total: running });
+    }
+    return days;
+  });
+
+  constructor() {
+    effect(() => {
+      this.purchasesSvc.setRange({ from: this.dateFrom(), to: this.dateTo() });
+    });
+  }
+
+  protected onEditRequested(row: HydratedPurchase): void {
+    // The real edit dialog ships in slice 9. For now, just acknowledge.
+    this.snackBar.open(
+      `Edit dialog for "${row.title}" arrives in slice 9.`,
+      'Dismiss',
+      { duration: 3000 },
+    );
   }
 }
